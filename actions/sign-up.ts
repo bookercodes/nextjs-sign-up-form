@@ -1,6 +1,3 @@
-// verify email
-// I
-
 "use server"
 
 import db from "@/db"
@@ -9,7 +6,7 @@ import { eq } from "drizzle-orm"
 import {
   SignUpActionState,
   signUpFormSchema,
-  SignUpFormSchema
+  SignUpFormData
 } from "@/definitions/sign-up"
 import { usersTable, lower } from "@/db/schema"
 import { redirect } from "next/navigation"
@@ -18,7 +15,7 @@ export async function signUp(
   _initialState: SignUpActionState,
   formData: FormData
 ): Promise<SignUpActionState> {
-  const form = Object.fromEntries(formData) as SignUpFormSchema
+  const form = Object.fromEntries(formData) as SignUpFormData
 
   const parsedForm = signUpFormSchema.safeParse(form)
   if (!parsedForm.success) {
@@ -27,6 +24,7 @@ export async function signUp(
       fieldErrors: parsedForm.error.flatten().fieldErrors
     }
   }
+
   const [user] = await db
     .select()
     .from(usersTable)
@@ -34,20 +32,17 @@ export async function signUp(
   if (user) {
     return {
       formData: form,
-      formError: "The email you entered has already been taken."
+      fieldErrors: {
+        email: ["The email you entered has already been taken."]
+      }
     }
   }
 
   const passwordHash = await hash(parsedForm.data.password)
-
-  try {
-    await db.insert(usersTable).values({
-      email: parsedForm.data.email,
-      passwordHash
-    })
-  } catch {
-    return { formError: "An unexpected error occured. Please try again later." }
-  }
+  await db.insert(usersTable).values({
+    email: parsedForm.data.email,
+    passwordHash
+  })
 
   redirect("/")
 }

@@ -1,13 +1,15 @@
 import React from "react"
 
 interface InputErrorProps {
-  message?: [string]
+  error?: string | string[]
 }
 
-const InputError: React.FC<InputErrorProps> = ({ message }) => {
-  if (!message) return null
+const InputError = ({ error }: InputErrorProps) => {
+  if (!error) return null
 
-  return <p className="text-sm font-medium text-destructive">{message}</p>
+  const errorMessage = Array.isArray(error) ? error[0] : error
+
+  return <p className="text-destructive text-sm font-medium">{errorMessage}</p>
 }
 
 export default InputError

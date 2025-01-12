@@ -16,11 +16,12 @@ export const signUpFormSchema = z.object({
     })
 })
 
-export type SignUpFormSchema = z.infer<typeof signUpFormSchema>
-export type SignUpFormErrors = z.inferFlattenedErrors<typeof signUpFormSchema>
+export type SignUpFormData = z.infer<typeof signUpFormSchema>
+type SignUpFieldErrors = z.inferFlattenedErrors<
+  typeof signUpFormSchema
+>["fieldErrors"]
 
 export type SignUpActionState = {
-  formError?: string
-  formData?: SignUpFormSchema
-  fieldErrors?: SignUpFormErrors["fieldErrors"]
+  formData?: SignUpFormData
+  fieldErrors?: SignUpFieldErrors
 }

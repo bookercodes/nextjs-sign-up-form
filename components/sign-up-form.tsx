@@ -10,16 +10,15 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   SignUpActionState,
   signUpFormSchema,
-  SignUpFormSchema
+  SignUpFormData
 } from "@/definitions/sign-up"
 import { useActionState, useTransition } from "react"
+import InputError from "./ui/input-error"
 // import InputError from "./ui/input-error"
 
 interface SignUpFormProps {
@@ -30,7 +29,7 @@ interface SignUpFormProps {
 }
 
 export default function SignUpForm({ action }: SignUpFormProps) {
-  const [actionState, formAction, isPending] = useActionState(action, {})
+  const [actionState, submitAction, isPending] = useActionState(action, {})
   const [, startTransition] = useTransition()
 
   console.log("actionState", actionState)
@@ -39,10 +38,9 @@ export default function SignUpForm({ action }: SignUpFormProps) {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<SignUpFormSchema>({
+  } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpFormSchema),
     mode: "onTouched",
-    // shouldUnregister: false,
     defaultValues: actionState.formData
   })
 
@@ -55,18 +53,12 @@ export default function SignUpForm({ action }: SignUpFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {actionState.formError && (
-          <Alert variant="destructive" className="mb-4">
-            <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertDescription>{actionState.formError}</AlertDescription>
-          </Alert>
-        )}
         <form
-          action={formAction}
-          onSubmit={handleSubmit(async (_, e) => {
-            startTransition(async () => {
+          action={submitAction}
+          onSubmit={handleSubmit((_, e) => {
+            startTransition(() => {
               const formData = new FormData(e?.target)
-              formAction(formData)
+              submitAction(formData)
             })
           })}
           className="space-y-4"
@@ -90,18 +82,8 @@ export default function SignUpForm({ action }: SignUpFormProps) {
               }
               aria-invalid={errors.email ? "true" : "false"}
             />
-            {actionState.fieldErrors?.email && (
-              <p className="text-sm font-medium text-destructive">
-                {actionState.fieldErrors.email}
-              </p>
-            )}
-            {errors.email && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.email.message}
-              </p>
-            )}
-            {/* <InputError message={errors.email?.message} />
-            <InputError message={actionState.fieldErrors?.email} /> */}
+            <InputError error={errors.email?.message} />
+            <InputError error={actionState.fieldErrors?.email} />
           </div>
           <div className="space-y-2">
             <Label
@@ -121,16 +103,8 @@ export default function SignUpForm({ action }: SignUpFormProps) {
               }
               aria-invalid={errors.password ? "true" : "false"}
             />
-            {actionState.fieldErrors?.password && (
-              <p className="text-sm font-medium text-destructive">
-                {actionState.fieldErrors.password[0]}
-              </p>
-            )}
-            {errors.password && (
-              <p className="text-sm font-medium text-destructive">
-                {errors.password.message}
-              </p>
-            )}
+            <InputError error={errors.password?.message} />
+            <InputError error={actionState.fieldErrors?.password} />
           </div>
           <Button className="w-full" type="submit" disabled={isPending}>
             Sign Up

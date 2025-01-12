@@ -16,9 +16,7 @@ export const usersTable = pgTable(
     email: varchar({ length: 254 }).notNull().unique(),
     passwordHash: varchar("password_hash", { length: 255 }).notNull()
   },
-  (table) => ({
-    emailUniqueIndex: uniqueIndex("emailUniqueIndex").on(lower(table.email))
-  })
+  (table) => [uniqueIndex("emailUniqueIndex").on(lower(table.email))]
 )
 
 export function lower(email: AnyPgColumn) {
