@@ -19,7 +19,6 @@ import {
 } from "@/definitions/sign-up"
 import { useActionState, useTransition } from "react"
 import InputError from "./ui/input-error"
-// import InputError from "./ui/input-error"
 
 interface SignUpFormProps {
   action: (
@@ -31,8 +30,6 @@ interface SignUpFormProps {
 export default function SignUpForm({ action }: SignUpFormProps) {
   const [actionState, submitAction, isPending] = useActionState(action, {})
   const [, startTransition] = useTransition()
-
-  console.log("actionState", actionState)
 
   const {
     register,
